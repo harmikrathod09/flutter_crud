@@ -20,6 +20,7 @@ class _CrudDatabaseState extends State<CrudDatabase> {
     getUser();
   }
 
+
   Future<void> getUser() async {
     // List<Map<String, dynamic>> data = await DatabaseUser().getUser();
     List<Map<String, dynamic>> data = await ApiService().getUser();
