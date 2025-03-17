@@ -1,3 +1,4 @@
+import 'package:crudpractice/Design/api.dart';
 import 'package:crudpractice/Design/database.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ class _CrudDatabaseState extends State<CrudDatabase> {
   List<Map<String, dynamic>> user = [];
   TextEditingController NameController = TextEditingController();
   TextEditingController CityController = TextEditingController();
-  int selectId = 0;
+  String selectId = "";
 
   void initState() {
     super.initState();
@@ -20,7 +21,9 @@ class _CrudDatabaseState extends State<CrudDatabase> {
   }
 
   Future<void> getUser() async {
-    List<Map<String, dynamic>> data = await DatabaseUser().getUser();
+    // List<Map<String, dynamic>> data = await DatabaseUser().getUser();
+    List<Map<String, dynamic>> data = await ApiService().getUser();
+
     setState(() {
       user = data;
     });
@@ -30,7 +33,7 @@ class _CrudDatabaseState extends State<CrudDatabase> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Database CRUD", style: TextStyle(color: Colors.white)),
+        title: Text("API CRUD", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black54,
       ),
       body: Padding(
@@ -50,15 +53,17 @@ class _CrudDatabaseState extends State<CrudDatabase> {
             ElevatedButton(
               onPressed: () async {
                 Map<String, dynamic> user = {
-                  DatabaseUser.NAME: NameController.text,
-                  DatabaseUser.CITY: CityController.text,
+                  "name": NameController.text,
+                  "city": CityController.text,
                 };
-                if (selectId > 0) {
+                if (selectId!="") {
                   user["id"] = selectId;
-                  await DatabaseUser().updateUser(user);
-                  selectId = 0;
+                  // await DatabaseUser().updateUser(user);
+                  await ApiService().updateUser(user["id"], user);
+                  selectId = "";
                 } else {
-                  await DatabaseUser().insertUser(user);
+                  // await DatabaseUser().insertUser(user);
+                  await ApiService().insertUser(user);
                 }
                 getUser();
                 NameController.clear();
@@ -82,15 +87,17 @@ class _CrudDatabaseState extends State<CrudDatabase> {
                           IconButton(
                             icon: Icon(Icons.edit, color:  Colors.blue),
                             onPressed: () {
+                              selectId=user[index]["id"];
                               NameController.text = user[index]["name"];
                               CityController.text = user[index]["city"];
-                              selectId = user[index]["id"];
                             },
                           ),
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              DatabaseUser().deleteUser(user[index]['id']);
+                            onPressed: () async {
+                              print(user[index]['id']);
+                              // DatabaseUser().deleteUser(user[index]['id']);
+                              await ApiService().deleteUser(user[index]['id']);
                               getUser();
                             },
                           ),
